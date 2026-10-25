@@ -57,9 +57,9 @@ img, svg, video, canvas { max-width: 100%; }
   --glow-amber: rgba(255, 170, 0, 0.24);
   --glow-orange: rgba(255, 140, 40, 0.18);
   --tile: 64px;
-  --tile-line: rgba(120, 90, 10, 0.09);
-  --tile-glow: rgba(255, 196, 30, 0.30);
-  --tile-glow-line: rgba(225, 160, 0, 0.42);
+  --tile-line: rgba(120, 90, 10, 0.055);
+  --tile-glow: rgba(255, 196, 30, 0.18);
+  --tile-glow-line: rgba(225, 160, 0, 0.26);
   --card-bg: linear-gradient(165deg, #FFFFFF 0%, #FFFFFF 55%, #FFFAEB 100%);
 
   /* the example client site inside the demo keeps its own look in both themes */
@@ -121,9 +121,9 @@ img, svg, video, canvas { max-width: 100%; }
     --glow-yellow: rgba(255, 196, 40, 0.32);
     --glow-amber: rgba(255, 150, 10, 0.28);
     --glow-orange: rgba(255, 105, 25, 0.22);
-    --tile-line: rgba(255, 214, 110, 0.075);
-    --tile-glow: rgba(255, 196, 40, 0.3);
-    --tile-glow-line: rgba(255, 205, 70, 0.5);
+    --tile-line: rgba(255, 214, 110, 0.045);
+    --tile-glow: rgba(255, 196, 40, 0.18);
+    --tile-glow-line: rgba(255, 205, 70, 0.3);
     --card-bg: linear-gradient(165deg, #27241B 0%, #1C1C1E 45%, #19191B 100%);
     color-scheme: dark;
   }
@@ -154,9 +154,9 @@ img, svg, video, canvas { max-width: 100%; }
   --glow-yellow: rgba(255, 196, 40, 0.32);
   --glow-amber: rgba(255, 150, 10, 0.28);
   --glow-orange: rgba(255, 105, 25, 0.22);
-  --tile-line: rgba(255, 214, 110, 0.075);
-  --tile-glow: rgba(255, 196, 40, 0.3);
-  --tile-glow-line: rgba(255, 205, 70, 0.5);
+  --tile-line: rgba(255, 214, 110, 0.045);
+  --tile-glow: rgba(255, 196, 40, 0.18);
+  --tile-glow-line: rgba(255, 205, 70, 0.3);
   --card-bg: linear-gradient(165deg, #27241B 0%, #1C1C1E 45%, #19191B 100%);
   color-scheme: dark;
 }
@@ -194,7 +194,7 @@ body::before {
 .bg-glow-2 { --glow-color: var(--glow-amber); width: 66vmax; height: 66vmax; right: -34vmax; top: 18vh; animation: drift-b 38s ease-in-out infinite; }
 .bg-glow-3 { --glow-color: var(--glow-orange); width: 56vmax; height: 56vmax; left: -28vmax; bottom: -30vmax; animation: drift-b 44s ease-in-out infinite reverse; }
 .bg-glow-4 { --glow-color: var(--glow-yellow); width: 44vmax; height: 44vmax; right: -20vmax; bottom: -24vmax; animation: drift-a 40s ease-in-out infinite reverse; }
-/* Faded, tilted tile grid in two halves anchored to the left and right edges, so the tiles that light up sit exactly
+/* Faded tile grid, tilted clockwise, in two halves anchored to the left and right edges, so the tiles that light up sit exactly
    on the grid on both sides. Each half is oversized by --tile-bleed so the tilt never shows its corners. */
 .bg-tiles {
   --tile-bleed: 18vmax;
@@ -204,7 +204,7 @@ body::before {
   width: calc(50% + var(--tile-bleed));
   background-image: linear-gradient(to right, var(--tile-line) 1px, transparent 1px), linear-gradient(to bottom, var(--tile-line) 1px, transparent 1px);
   background-size: var(--tile) var(--tile);
-  rotate: -12deg;
+  rotate: 12deg;
 }
 .bg-tiles-left {
   left: calc(var(--tile-bleed) * -1);
@@ -461,12 +461,12 @@ h3 { font-size: var(--fs-h3); font-weight: 600; line-height: 1.25; letter-spacin
 .hero-tiles {
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(-12deg, rgba(120, 78, 0, 0.13) 0 1px, transparent 1px 56px), repeating-linear-gradient(78deg, rgba(120, 78, 0, 0.13) 0 1px, transparent 1px 56px);
+  background-image: repeating-linear-gradient(12deg, rgba(120, 78, 0, 0.08) 0 1px, transparent 1px 56px), repeating-linear-gradient(102deg, rgba(120, 78, 0, 0.08) 0 1px, transparent 1px 56px);
   -webkit-mask-image: radial-gradient(ellipse 60% 85% at 74% 50%, #000 15%, transparent 72%);
   mask-image: radial-gradient(ellipse 60% 85% at 74% 50%, #000 15%, transparent 72%);
 }
 .hero-tiles-spot {
-  background-image: repeating-linear-gradient(-12deg, rgba(120, 78, 0, 0.4) 0 1px, transparent 1px 56px), repeating-linear-gradient(78deg, rgba(120, 78, 0, 0.4) 0 1px, transparent 1px 56px), radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.4), transparent 240px);
+  background-image: repeating-linear-gradient(12deg, rgba(120, 78, 0, 0.26) 0 1px, transparent 1px 56px), repeating-linear-gradient(102deg, rgba(120, 78, 0, 0.26) 0 1px, transparent 1px 56px), radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.4), transparent 240px);
   -webkit-mask-image: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 75%);
   mask-image: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 75%);
   opacity: 0;
