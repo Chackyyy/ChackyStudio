@@ -41,7 +41,10 @@
   --glow-yellow: rgba(255, 205, 50, 0.36);
   --glow-amber: rgba(255, 170, 0, 0.24);
   --glow-orange: rgba(255, 140, 40, 0.18);
-  --side-dot: rgba(120, 90, 10, 0.10);
+  --tile: 64px;
+  --tile-line: rgba(120, 90, 10, 0.09);
+  --tile-glow: rgba(255, 196, 30, 0.30);
+  --tile-glow-line: rgba(225, 160, 0, 0.42);
   --card-bg: linear-gradient(165deg, #FFFFFF 0%, #FFFFFF 55%, #FFFAEB 100%);
 
   /* the example client site inside the demo keeps its own look in both themes */
@@ -103,7 +106,9 @@
     --glow-yellow: rgba(255, 196, 40, 0.32);
     --glow-amber: rgba(255, 150, 10, 0.28);
     --glow-orange: rgba(255, 105, 25, 0.22);
-    --side-dot: rgba(255, 214, 110, 0.09);
+    --tile-line: rgba(255, 214, 110, 0.075);
+    --tile-glow: rgba(255, 196, 40, 0.3);
+    --tile-glow-line: rgba(255, 205, 70, 0.5);
     --card-bg: linear-gradient(165deg, #27241B 0%, #1C1C1E 45%, #19191B 100%);
     color-scheme: dark;
   }
@@ -134,7 +139,9 @@
   --glow-yellow: rgba(255, 196, 40, 0.32);
   --glow-amber: rgba(255, 150, 10, 0.28);
   --glow-orange: rgba(255, 105, 25, 0.22);
-  --side-dot: rgba(255, 214, 110, 0.09);
+  --tile-line: rgba(255, 214, 110, 0.075);
+  --tile-glow: rgba(255, 196, 40, 0.3);
+  --tile-glow-line: rgba(255, 205, 70, 0.5);
   --card-bg: linear-gradient(165deg, #27241B 0%, #1C1C1E 45%, #19191B 100%);
   color-scheme: dark;
 }
@@ -172,14 +179,40 @@ body::before {
 .bg-glow-2 { --glow-color: var(--glow-amber); width: 66vmax; height: 66vmax; right: -34vmax; top: 18vh; animation: drift-b 38s ease-in-out infinite; }
 .bg-glow-3 { --glow-color: var(--glow-orange); width: 56vmax; height: 56vmax; left: -28vmax; bottom: -30vmax; animation: drift-b 44s ease-in-out infinite reverse; }
 .bg-glow-4 { --glow-color: var(--glow-yellow); width: 44vmax; height: 44vmax; right: -20vmax; bottom: -24vmax; animation: drift-a 40s ease-in-out infinite reverse; }
-.side-dots {
+/* Faded tile grid in two halves anchored to the left and right edges, so the tiles that light up sit exactly on the grid on both sides */
+.bg-tiles {
   position: absolute;
-  inset: 0;
-  background-image: radial-gradient(var(--side-dot) 1px, transparent 1.4px);
-  background-size: 24px 24px;
-  -webkit-mask-image: linear-gradient(90deg, #000, transparent 20%, transparent 80%, #000);
-  mask-image: linear-gradient(90deg, #000, transparent 20%, transparent 80%, #000);
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background-image: linear-gradient(to right, var(--tile-line) 1px, transparent 1px), linear-gradient(to bottom, var(--tile-line) 1px, transparent 1px);
+  background-size: var(--tile) var(--tile);
 }
+.bg-tiles-left {
+  left: 0;
+  background-position: left top;
+  -webkit-mask-image: linear-gradient(90deg, #000, rgba(0, 0, 0, 0.2) 80%, transparent);
+  mask-image: linear-gradient(90deg, #000, rgba(0, 0, 0, 0.2) 80%, transparent);
+}
+.bg-tiles-right {
+  right: 0;
+  background-position: right top;
+  -webkit-mask-image: linear-gradient(270deg, #000, rgba(0, 0, 0, 0.2) 80%, transparent);
+  mask-image: linear-gradient(270deg, #000, rgba(0, 0, 0, 0.2) 80%, transparent);
+}
+.tile-lit {
+  position: absolute;
+  top: calc(var(--tile) * var(--r));
+  width: calc(var(--tile) + 1px);
+  height: calc(var(--tile) + 1px);
+  border: 1px solid var(--tile-glow-line);
+  background: radial-gradient(closest-side, var(--tile-glow), transparent);
+  opacity: 0;
+  animation: tile-blink 7s ease-in-out var(--d, 0s) infinite;
+}
+.bg-tiles-left .tile-lit { left: calc(var(--tile) * var(--k)); }
+.bg-tiles-right .tile-lit { right: calc(var(--tile) * var(--k) - 1px); }
+@keyframes tile-blink { 0%, 100% { opacity: 0; } 35%, 55% { opacity: 1; } }
 h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
 ul, ol { padding: 0; }
 a { color: inherit; }
@@ -395,6 +428,73 @@ h3 { font-size: var(--fs-h3); font-weight: 600; line-height: 1.25; letter-spacin
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, var(--sh-glow-lg);
 }
 .hero-panel > :not(.lights) { position: relative; z-index: 1; }
+/* Hero detail: a tile grid behind the phone that brightens around the pointer, rings around the phone,
+   a faint logo watermark, fine grain and a crisp inner edge */
+.hero-panel { overflow: clip; }
+.hero-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55), inset 0 -90px 120px -80px rgba(190, 115, 0, 0.35);
+}
+.hero-tiles {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to right, rgba(120, 78, 0, 0.13) 1px, transparent 1px), linear-gradient(to bottom, rgba(120, 78, 0, 0.13) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 60% 85% at 74% 50%, #000 15%, transparent 72%);
+  mask-image: radial-gradient(ellipse 60% 85% at 74% 50%, #000 15%, transparent 72%);
+}
+.hero-tiles-spot {
+  background-image: linear-gradient(to right, rgba(120, 78, 0, 0.4) 1px, transparent 1px), linear-gradient(to bottom, rgba(120, 78, 0, 0.4) 1px, transparent 1px), radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.4), transparent 240px);
+  background-size: 56px 56px, 56px 56px, 100% 100%;
+  background-position: center, center, 0 0;
+  -webkit-mask-image: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 75%);
+  mask-image: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 75%);
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+.hero-panel.is-lit .hero-tiles-spot { opacity: 1; }
+.hero-mark {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  left: -230px;
+  bottom: -330px;
+  opacity: 0.06;
+  filter: brightness(0);
+  rotate: -8deg;
+  /* Fades out toward the top right so the watermark never sits behind the text */
+  -webkit-mask-image: linear-gradient(45deg, #000 30%, transparent 58%);
+  mask-image: linear-gradient(45deg, #000 30%, transparent 58%);
+}
+@media (max-width: 859px) {
+  .hero-tiles {
+    -webkit-mask-image: radial-gradient(ellipse 95% 40% at 50% 80%, #000 15%, transparent 72%);
+    mask-image: radial-gradient(ellipse 95% 40% at 50% 80%, #000 15%, transparent 72%);
+  }
+}
+.hero-grain { position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.27 0 0 0 0 0.02 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23g%29'/%3E%3C/svg%3E"); opacity: 0.16; mix-blend-mode: multiply; }
+.device-rings {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  width: min(620px, 125%);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: repeating-radial-gradient(circle, transparent 0 69px, rgba(120, 78, 0, 0.2) 69px 70px);
+  -webkit-mask-image: radial-gradient(circle, #000 25%, transparent 70%);
+  mask-image: radial-gradient(circle, #000 25%, transparent 70%);
+  animation: rings-breathe 9s ease-in-out infinite;
+}
+@keyframes rings-breathe { 0%, 100% { scale: 1; } 50% { scale: 1.05; } }
 .hero-tag {
   display: inline-flex;
   align-items: center;
@@ -1375,6 +1475,7 @@ kbd { display: inline-block; min-width: 1.9em; padding: 5px 8px; border-radius: 
   *, *::before, *::after { animation: none !important; }
   .m-cursor { display: none; }
   .sent-icon path { stroke-dashoffset: 0; }
+  .tile-lit { opacity: 0.55; }
   .contact { animation: contact-float 6s ease-in-out infinite !important; }
   .contact::after { animation: contact-ground 6s ease-in-out infinite !important; }
 }
@@ -1436,7 +1537,20 @@ kbd { display: inline-block; min-width: 1.9em; padding: 5px 8px; border-radius: 
   <span class="bg-glow bg-glow-2"></span>
   <span class="bg-glow bg-glow-3"></span>
   <span class="bg-glow bg-glow-4"></span>
-  <span class="side-dots"></span>
+  <span class="bg-tiles bg-tiles-left">
+    <span class="tile-lit" style="--k: 1; --r: 3; --d: 0s"></span>
+    <span class="tile-lit" style="--k: 3; --r: 6; --d: -2.3s"></span>
+    <span class="tile-lit" style="--k: 0; --r: 9; --d: -4.6s"></span>
+    <span class="tile-lit" style="--k: 2; --r: 12; --d: -1.2s"></span>
+    <span class="tile-lit" style="--k: 4; --r: 2; --d: -3.5s"></span>
+  </span>
+  <span class="bg-tiles bg-tiles-right">
+    <span class="tile-lit" style="--k: 1; --r: 2; --d: -0.8s"></span>
+    <span class="tile-lit" style="--k: 0; --r: 7; --d: -3.1s"></span>
+    <span class="tile-lit" style="--k: 3; --r: 10; --d: -5.4s"></span>
+    <span class="tile-lit" style="--k: 1; --r: 13; --d: -1.9s"></span>
+    <span class="tile-lit" style="--k: 4; --r: 5; --d: -4.2s"></span>
+  </span>
 </div>
 
 <header class="topbar" id="topbar">
@@ -1465,7 +1579,10 @@ kbd { display: inline-block; min-width: 1.9em; padding: 5px 8px; border-radius: 
           <span class="orb orb-a"></span>
           <span class="orb orb-b"></span>
           <span class="orb orb-c"></span>
-          <span class="dotgrid"></span>
+          <span class="hero-tiles"></span>
+          <span class="hero-tiles hero-tiles-spot"></span>
+          <svg class="hero-mark"><use href="#logo-mark"/></svg>
+          <span class="hero-grain"></span>
         </div>
         <div class="hero-grid">
           <div class="hero-copy">
@@ -1490,6 +1607,7 @@ kbd { display: inline-block; min-width: 1.9em; padding: 5px 8px; border-radius: 
 
           <figure class="demo" aria-label="Example bakery website shown on a phone, with buttons to see it on a tablet and a desktop screen">
             <div class="device-stage" data-view="phone">
+              <span class="device-rings" aria-hidden="true"></span>
               <span class="float-badge b1" aria-hidden="true"><span class="fb-icon"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></span>Fits every screen</span>
               <span class="float-badge b2" aria-hidden="true"><span class="fb-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>Fast to load</span>
               <div class="device" id="device" data-view="phone">
@@ -1942,7 +2060,20 @@ kbd { display: inline-block; min-width: 1.9em; padding: 5px 8px; border-radius: 
     <span class="bg-glow bg-glow-2"></span>
     <span class="bg-glow bg-glow-3"></span>
     <span class="bg-glow bg-glow-4"></span>
-    <span class="side-dots"></span>
+    <span class="bg-tiles bg-tiles-left">
+      <span class="tile-lit" style="--k: 1; --r: 3; --d: 0s"></span>
+      <span class="tile-lit" style="--k: 3; --r: 6; --d: -2.3s"></span>
+      <span class="tile-lit" style="--k: 0; --r: 9; --d: -4.6s"></span>
+      <span class="tile-lit" style="--k: 2; --r: 12; --d: -1.2s"></span>
+      <span class="tile-lit" style="--k: 4; --r: 2; --d: -3.5s"></span>
+    </span>
+    <span class="bg-tiles bg-tiles-right">
+      <span class="tile-lit" style="--k: 1; --r: 2; --d: -0.8s"></span>
+      <span class="tile-lit" style="--k: 0; --r: 7; --d: -3.1s"></span>
+      <span class="tile-lit" style="--k: 3; --r: 10; --d: -5.4s"></span>
+      <span class="tile-lit" style="--k: 1; --r: 13; --d: -1.9s"></span>
+      <span class="tile-lit" style="--k: 4; --r: 5; --d: -4.2s"></span>
+    </span>
   </div>
   <div class="wrap game-wrap">
     <div class="game-top">
@@ -2034,6 +2165,18 @@ kbd { display: inline-block; min-width: 1.9em; padding: 5px 8px; border-radius: 
       device.style.setProperty('--ry', '0deg');
       device.style.setProperty('--rx', '0deg');
     });
+  }
+
+  // Brighten the hero's tile grid around the pointer
+  const heroPanel = document.querySelector('.hero-panel');
+  if (finePointer && heroPanel) {
+    heroPanel.addEventListener('pointermove', e => {
+      const r = heroPanel.getBoundingClientRect();
+      heroPanel.style.setProperty('--spot-x', (e.clientX - r.left) + 'px');
+      heroPanel.style.setProperty('--spot-y', (e.clientY - r.top) + 'px');
+      heroPanel.classList.add('is-lit');
+    });
+    heroPanel.addEventListener('pointerleave', () => heroPanel.classList.remove('is-lit'));
   }
 
   // Spotlight that follows the pointer across cards
